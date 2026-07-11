@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base application theme -->
+    <style name="Theme.Bloom" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/bloom_background</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
+    </style>
+
+    <!-- Splash screen theme — uses SplashScreen API -->
+    <style name="Theme.Bloom.Splash" parent="Theme.SplashScreen">
+        <!-- Bloom logo/icon color -->
+        <item name="windowSplashScreenBackground">@color/bloom_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_bloom_splash</item>
+        <item name="windowSplashScreenAnimationDuration">600</item>
+        <!-- Transition to the main theme -->
+        <item name="postSplashScreenTheme">@style/Theme.Bloom</item>
+    </style>
+</resources>

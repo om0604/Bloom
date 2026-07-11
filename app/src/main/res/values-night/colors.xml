@@ -1,0 +1,5 @@
+<resources>
+    <!-- Night mode color overrides -->
+    <color name="bloom_background">#1A1714</color>
+    <color name="bloom_primary">#F5C880</color>
+</resources>

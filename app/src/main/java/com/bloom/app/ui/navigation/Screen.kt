@@ -24,11 +24,7 @@ sealed class Screen(val route: String) {
     data object Insights : Screen("insights")
 
     // ── Sub-destinations ──────────────────────────────────────────────────────
-    data object MoodCheckIn : Screen("mood_checkin?mood={mood}") {
-        const val ARG_MOOD = "mood"
-        fun createRoute(mood: String? = null): String = 
-            if (mood != null) "mood_checkin?mood=$mood" else "mood_checkin"
-    }
+
     data object Settings    : Screen("settings")
 
     /** Journal editor — entryId is optional (null = new entry) */

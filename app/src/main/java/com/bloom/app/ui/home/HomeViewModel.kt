@@ -56,6 +56,12 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun setTodaysMood(mood: Mood) {
+        viewModelScope.launch {
+            moodRepo.recordMood(mood = mood)
+        }
+    }
+
     private fun observeHomeData() {
         viewModelScope.launch {
             // Combine all reactive sources into a single UI state

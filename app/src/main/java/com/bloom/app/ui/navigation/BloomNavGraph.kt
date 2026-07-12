@@ -14,7 +14,6 @@ import com.bloom.app.ui.home.HomeScreen
 import com.bloom.app.ui.insights.InsightsScreen
 import com.bloom.app.ui.journal.JournalEditorScreen
 import com.bloom.app.ui.journal.JournalListScreen
-import com.bloom.app.ui.mood.MoodCheckInScreen
 import com.bloom.app.ui.onboarding.OnboardingScreen
 import com.bloom.app.ui.settings.SettingsScreen
 import com.bloom.app.ui.splash.SplashScreen
@@ -79,7 +78,6 @@ fun BloomNavGraph(
         // ── Home ──────────────────────────────────────────────────────────────
         composable(Screen.Home.route) {
             HomeScreen(
-                onMoodCheckIn = { mood -> navController.navigate(Screen.MoodCheckIn.createRoute(mood)) },
                 onNewEntry    = { navController.navigate(Screen.JournalEditor.createRoute()) },
                 onContinueEntry = { id ->
                     navController.navigate(Screen.JournalEditor.createRoute(id))
@@ -128,39 +126,6 @@ fun BloomNavGraph(
             )
         }
 
-        // ── Mood Check-In ─────────────────────────────────────────────────────
-        composable(
-            route = Screen.MoodCheckIn.route,
-            arguments = listOf(
-                navArgument(Screen.MoodCheckIn.ARG_MOOD) {
-                    type = NavType.StringType
-                    nullable = true
-                    defaultValue = null
-                }
-            ),
-            enterTransition = {
-                slideInVertically(
-                    animationSpec = tween(TRANSITION_DURATION),
-                    initialOffsetY = { it / 2 }
-                ) + fadeIn(animationSpec = tween(TRANSITION_DURATION))
-            },
-            popExitTransition = {
-                slideOutVertically(
-                    animationSpec = tween(TRANSITION_DURATION),
-                    targetOffsetY = { it / 2 }
-                ) + fadeOut(animationSpec = tween(TRANSITION_DURATION))
-            },
-        ) { backStackEntry ->
-            val preselectedMood = backStackEntry.arguments?.getString(Screen.MoodCheckIn.ARG_MOOD)
-            MoodCheckInScreen(
-                preselectedMood = preselectedMood,
-                onComplete = { navController.popBackStack() },
-                onWriteEntry = {
-                    navController.popBackStack()
-                    navController.navigate(Screen.JournalEditor.createRoute())
-                }
-            )
-        }
 
         // ── Garden ────────────────────────────────────────────────────────────
         composable(Screen.Garden.route) {

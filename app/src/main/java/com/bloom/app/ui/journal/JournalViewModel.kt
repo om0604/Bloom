@@ -22,7 +22,9 @@ import java.time.LocalDate
 data class JournalEditorUiState(
     val entryId             : Long             = -1L,
     val content             : String           = "",
+    val originalContent     : String           = "",
     val selectedMood        : Mood             = Mood.OKAY,
+    val originalMood        : Mood             = Mood.OKAY,
     val activePrompt        : String?          = null,
     val aiReflection        : String?          = null,
     val reflectionState     : ReflectionState? = null,
@@ -84,7 +86,9 @@ class JournalViewModel(application: Application) : AndroidViewModel(application)
                     _editorState.value = JournalEditorUiState(
                         entryId           = entry.id,
                         content           = entry.content,
+                        originalContent   = entry.content,
                         selectedMood      = entry.mood,
+                        originalMood      = entry.mood,
                         activePrompt      = entry.prompt,
                         aiReflection      = entry.aiReflection,
                         wordCount         = entry.wordCount,
@@ -112,6 +116,8 @@ class JournalViewModel(application: Application) : AndroidViewModel(application)
         val state = _editorState.value
         if (state.content.isBlank()) return
 
+        val contentChanged = state.content != state.originalContent || state.selectedMood != state.originalMood
+
         viewModelScope.launch {
             if (state.isExistingEntry && state.entryId >= 0) {
                 // Preserve the original createdAt — only updatedAt changes
@@ -133,7 +139,16 @@ class JournalViewModel(application: Application) : AndroidViewModel(application)
                     prompt  = state.activePrompt,
                 )
             }
-            _editorState.value = _editorState.value.copy(isSaved = true)
+            
+            if (contentChanged) {
+                com.bloom.app.util.AppEventBus.emit(com.bloom.app.util.AppEvent.JournalEntrySaved)
+            }
+
+            _editorState.value = _editorState.value.copy(
+                isSaved = true,
+                originalContent = state.content,
+                originalMood = state.selectedMood
+            )
         }
     }
 
@@ -154,9 +169,14 @@ class JournalViewModel(application: Application) : AndroidViewModel(application)
                     mood    = state.selectedMood,
                     prompt  = state.activePrompt,
                 )
+                
+                com.bloom.app.util.AppEventBus.emit(com.bloom.app.util.AppEvent.JournalEntrySaved)
+                
                 _editorState.value = _editorState.value.copy(
                     entryId         = entryId,
                     isExistingEntry = true,
+                    originalContent = state.content,
+                    originalMood    = state.selectedMood
                 )
             }
 

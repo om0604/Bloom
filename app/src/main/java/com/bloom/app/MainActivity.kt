@@ -71,7 +71,6 @@ private fun BloomApp(startDestination: String, nextDestination: String) {
     val hideBottomNavRoutes = setOf(
         Screen.Splash.route,
         Screen.Onboarding.route,
-        Screen.MoodCheckIn.route,
         Screen.JournalEditor.route.substringBefore("/{"),
         Screen.Settings.route,
     )

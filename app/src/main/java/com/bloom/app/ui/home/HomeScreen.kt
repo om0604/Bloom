@@ -63,7 +63,6 @@ import com.bloom.app.util.ThemePreference
 
 @Composable
 fun HomeScreen(
-    onMoodCheckIn   : (String?) -> Unit,
     onNewEntry      : () -> Unit,
     onContinueEntry : (Long) -> Unit,
     onSettings      : () -> Unit,
@@ -83,7 +82,7 @@ fun HomeScreen(
             HomeContent(
                 state           = state,
                 themePref       = themePref,
-                onMoodCheckIn   = onMoodCheckIn,
+                onMoodSelect    = viewModel::setTodaysMood,
                 onNewEntry      = onNewEntry,
                 onContinueEntry = onContinueEntry,
                 onSettings      = onSettings,
@@ -97,7 +96,7 @@ fun HomeScreen(
 private fun HomeContent(
     state           : HomeUiState,
     themePref       : ThemePreference,
-    onMoodCheckIn   : (String?) -> Unit,
+    onMoodSelect    : (Mood) -> Unit,
     onNewEntry      : () -> Unit,
     onContinueEntry : (Long) -> Unit,
     onSettings      : () -> Unit,
@@ -107,12 +106,13 @@ private fun HomeContent(
     
     var gardenBounce by remember { mutableStateOf(false) }
 
-    // Trigger snackbar when a new mood is saved
-    LaunchedEffect(state.todaysMood) {
-        if (state.todaysMood != null && !state.isLoading) {
-            gardenBounce = true
-            snackbarHostState.showSnackbar("🌱 Reflection Saved\nYour garden grew today.")
-            gardenBounce = false
+    LaunchedEffect(Unit) {
+        com.bloom.app.util.AppEventBus.events.collect { event ->
+            if (event is com.bloom.app.util.AppEvent.JournalEntrySaved) {
+                gardenBounce = true
+                snackbarHostState.showSnackbar("🌱 Reflection Saved\nYour garden grew today.")
+                gardenBounce = false
+            }
         }
     }
 
@@ -158,8 +158,8 @@ private fun HomeContent(
             enter = slideInVertically(initialOffsetY = { 50 }, animationSpec = tween(400, delayMillis = 250)) + fadeIn(animationSpec = tween(400, delayMillis = 250))
         ) {
             MoodSection(
-                todaysMood    = state.todaysMood,
-                onMoodCheckIn = onMoodCheckIn,
+                todaysMood   = state.todaysMood,
+                onMoodSelect = onMoodSelect,
             )
         }
 
@@ -278,7 +278,7 @@ private fun HomeHeader(
 @Composable
 private fun MoodSection(
     todaysMood    : MoodEntry?,
-    onMoodCheckIn : (String?) -> Unit,
+    onMoodSelect  : (Mood) -> Unit,
 ) {
     Column(
         modifier = Modifier.padding(horizontal = 20.dp),
@@ -286,200 +286,33 @@ private fun MoodSection(
     ) {
         SectionHeader(text = "How are you feeling?")
 
-        if (todaysMood != null) {
-            // Already checked in — show their mood, allow re-check
-            MoodDisplayCard(
-                moodEntry     = todaysMood,
-                onTap         = { onMoodCheckIn(null) },
-            )
-        } else {
-            // Prompt for check-in using the interactive slider
-            MoodSlider(onMoodConfirmed = { mood -> onMoodCheckIn(mood.name) })
-        }
-    }
-}
+        var currentlyActiveMood by remember(todaysMood) { mutableStateOf(todaysMood?.mood) }
 
-@Composable
-private fun MoodSlider(
-    onMoodConfirmed: (Mood) -> Unit,
-) {
-    val haptic = LocalHapticFeedback.current
-    var selectedIndex by remember { mutableIntStateOf(-1) }
-    var dragX by remember { mutableFloatStateOf(-1f) }
-    var itemWidth by remember { mutableFloatStateOf(0f) }
-    
-    // Determine nearest index based on dragX
-    LaunchedEffect(dragX) {
-        if (dragX >= 0 && itemWidth > 0) {
-            val newIndex = (dragX / itemWidth).toInt().coerceIn(0, Mood.entries.size - 1)
-            if (newIndex != selectedIndex) {
-                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                selectedIndex = newIndex
-            }
-        }
-    }
-
-    BoxWithConstraints(modifier = Modifier.fillMaxWidth().height(72.dp)) {
-        val width = constraints.maxWidth.toFloat()
-        itemWidth = if (Mood.entries.isNotEmpty()) width / Mood.entries.size else 0f
-
-        // Background Track
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .clip(MaterialTheme.shapes.large)
-                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
-                .pointerInput(Unit) {
-                    detectHorizontalDragGestures(
-                        onDragStart = { offset -> dragX = offset.x },
-                        onDragEnd = { dragX = -1f },
-                        onDragCancel = { dragX = -1f },
-                        onHorizontalDrag = { _, dragAmount ->
-                            dragX = (dragX + dragAmount).coerceIn(0f, width)
-                        }
-                    )
-                }
+        MoodSlider(
+            selectedMood = todaysMood?.mood,
+            onMoodSelect = { mood -> 
+                currentlyActiveMood = mood
+                onMoodSelect(mood) 
+            },
+            onMoodHover = { currentlyActiveMood = it }
         )
-        
-        // Thumb (Animated)
-        if (selectedIndex >= 0 || dragX >= 0) {
-            val targetOffset = if (dragX >= 0) {
-                (dragX - (itemWidth / 2)).coerceIn(0f, (Mood.entries.size - 1) * itemWidth)
-            } else {
-                selectedIndex * itemWidth
-            }
 
-            val animatedOffset by animateFloatAsState(
-                targetValue = targetOffset,
-                animationSpec = if (dragX >= 0) tween(0) else spring(stiffness = Spring.StiffnessMediumLow),
-                label = "thumbOffset"
-            )
-            
-            val activeIndex = if (dragX >= 0) (dragX / itemWidth).toInt().coerceIn(0, Mood.entries.size - 1) else selectedIndex
-            val selectedMood = Mood.entries.getOrNull(activeIndex) ?: Mood.OKAY
-            
-            val moodColor = when(selectedMood) {
-                Mood.GREAT -> MoodGreat
-                Mood.GOOD -> MoodGood
-                Mood.OKAY -> MoodOkay
-                Mood.LOW -> MoodLow
-                Mood.ROUGH -> MoodRough
-            }
-            
-            val animatedColor by animateColorAsState(targetValue = moodColor.copy(alpha = 0.25f), label = "thumbColor")
-
-            Box(
-                modifier = Modifier
-                    .offset { IntOffset(animatedOffset.roundToInt(), 0) }
-                    .width(with(LocalDensity.current) { itemWidth.toDp() })
-                    .fillMaxHeight()
-                    .padding(4.dp)
-                    .clip(MaterialTheme.shapes.medium)
-                    .background(animatedColor)
-            )
-        }
-
-        // Icons overlay
-        Row(modifier = Modifier.fillMaxSize()) {
-            Mood.entries.forEachIndexed { index, mood ->
-                val isSelected = selectedIndex == index
-                val scale by animateFloatAsState(if (isSelected) 1.25f else 1f, label = "iconScale")
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
-                        .clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null
-                        ) {
-                            if (selectedIndex != index) {
-                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                selectedIndex = index
-                            }
-                        },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = mood.emoji,
-                        modifier = Modifier.scale(scale),
-                        style = MaterialTheme.typography.headlineMedium
-                    )
-                }
-            }
-        }
-    }
-
-    // Continue button appears below slider when selected
-    AnimatedVisibility(
-        visible = selectedIndex >= 0,
-        enter = expandVertically() + fadeIn(),
-        exit = shrinkVertically() + fadeOut()
-    ) {
-        Column {
-            Spacer(modifier = Modifier.height(16.dp))
-            BloomPrimaryButton(
-                text = "Continue",
-                onClick = {
-                    if (selectedIndex >= 0) {
-                        onMoodConfirmed(Mood.entries[selectedIndex])
-                    }
-                },
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
-    }
-}
-
-@Composable
-private fun MoodDisplayCard(
-    moodEntry : MoodEntry,
-    onTap     : () -> Unit,
-) {
-    val moodColor = when (moodEntry.mood) {
-        Mood.GREAT -> MoodGreat
-        Mood.GOOD  -> MoodGood
-        Mood.OKAY  -> MoodOkay
-        Mood.LOW   -> MoodLow
-        Mood.ROUGH -> MoodRough
-    }
-
-    BloomCard(
-        onClick  = onTap,
-        modifier = Modifier.fillMaxWidth(),
-    ) {
-        Row(
-            modifier            = Modifier
-                .fillMaxWidth()
-                .padding(20.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment   = Alignment.CenterVertically,
+        AnimatedVisibility(
+            visible = currentlyActiveMood != null,
+            enter = fadeIn() + expandVertically(),
+            exit = fadeOut() + shrinkVertically()
         ) {
-            Column {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text  = moodEntry.mood.emoji,
-                    style = MaterialTheme.typography.headlineMedium,
+                    text = currentlyActiveMood?.description ?: "",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text  = moodEntry.mood.displayName,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = moodColor,
-                )
-                if (moodEntry.note != null) {
-                    Text(
-                        text     = moodEntry.note,
-                        style    = MaterialTheme.typography.bodyMedium,
-                        color    = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
             }
-            Text(
-                text  = "Change",
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
         }
     }
 }

@@ -200,9 +200,3 @@ Obtain a free key at [console.groq.com](https://console.groq.com).
 - [ ] Multiple journal themes / fonts
 - [ ] Search across entries
 - [ ] AI provider abstraction layer (swap Groq → any OpenAI-compatible endpoint)
-
----
-
-## License
-
-MIT — see [LICENSE](LICENSE).

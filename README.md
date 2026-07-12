@@ -1,8 +1,27 @@
 # 🌱 Bloom — Grow a little every day.
 
+![Kotlin](https://img.shields.io/badge/Kotlin-2.0-blue)
+![Android](https://img.shields.io/badge/Android-API%2026%2B-green)
+![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-Material%203-brightgreen)
+![Room](https://img.shields.io/badge/Room-Offline--First-orange)
+![Groq](https://img.shields.io/badge/AI-Groq-red)
+![License](https://img.shields.io/badge/License-MIT-lightgrey)
+
 A **premium Android journaling application** focused on mindful reflection and emotional wellbeing.
 
 Bloom is offline-first, powered by a local Room database, and enriched with Groq AI-assisted reflections, a living Digital Garden, and a carefully crafted Material 3 Jetpack Compose UI with beautiful animations.
+
+---
+
+## Highlights
+
+- Offline-first journaling powered by Room
+- AI-assisted reflections using the Groq API
+- Material 3 Jetpack Compose UI
+- Custom Digital Garden with growth stages
+- Reusable Mood Slider component
+- Event-driven architecture using SharedFlow
+- Manual dependency injection with AppContainer
 
 ---
 
@@ -10,7 +29,7 @@ Bloom is offline-first, powered by a local Room database, and enriched with Groq
 
 | Splash | Onboarding | Home | Journal | Garden | Insights |
 |---|---|---|---|---|---|
-| _(run app to see)_ | _(run app to see)_ | _(run app to see)_ | _(run app to see)_ | _(run app to see)_ | _(run app to see)_ |
+| ![Splash](docs/images/splash.png) | ![Onboarding](docs/images/onboarding.png) | ![Home](docs/images/home.png) | ![Journal](docs/images/journal.png) | ![Garden](docs/images/garden.png) | ![Insights](docs/images/insights.png) |
 
 ---
 
@@ -46,7 +65,7 @@ ViewModel (StateFlow / UiState)
        ↓
 Repository (single source of truth)
        ↓
-Room DAO / DataStore / GeminiService (Groq REST)
+Room DAO / DataStore / Groq REST API
        ↓
 AppContainer (Manual Dependency Injection)
 ```
@@ -55,64 +74,19 @@ AppContainer (Manual Dependency Injection)
 
 ```
 com.bloom.app
-├── BloomApplication.kt         # Application class — owns AppContainer
-├── MainActivity.kt             # Single Activity — hosts NavGraph + BottomNav
+├── BloomApplication.kt
+├── MainActivity.kt
 ├── ai/
-│   └── GroqService.kt          # Groq REST API client
 ├── data/
 │   ├── local/
-│   │   ├── BloomDatabase.kt    # Room database definition (v1)
 │   │   ├── dao/
-│   │   │   ├── JournalEntryDao.kt
-│   │   │   └── MoodEntryDao.kt
-│   │   └── entity/
-│   │       ├── JournalEntryEntity.kt
-│   │       ├── MoodEntryEntity.kt
-│   │       └── EntityMappers.kt
-│   ├── model/
-│   │   ├── GardenStage.kt      # Enum: SEED → SPROUT → LEAF → FLOWER → TREE
-│   │   ├── JournalEntry.kt     # Domain model
-│   │   ├── Mood.kt             # Enum: GREAT / GOOD / OKAY / LOW / ROUGH
-│   │   └── MoodEntry.kt        # Domain model
-│   └── repository/
-│       ├── JournalRepository.kt
-│       └── MoodRepository.kt
+│   │   ├── entity/
+│   │   └── BloomDatabase.kt
+│   ├── repository/
+│   └── model/
 ├── di/
-│   └── AppContainer.kt         # Manual DI — lazy service locator
 ├── ui/
-│   ├── components/
-│   │   ├── BloomComponents.kt  # BloomCard, BloomPrimaryButton, QuoteCard, StreakBadge, etc.
-│   │   └── MoodSlider.kt       # Reusable 5-position mood drag slider
-│   ├── garden/
-│   │   ├── GardenScreen.kt
-│   │   └── GardenViewModel.kt
-│   ├── home/
-│   │   ├── HomeScreen.kt
-│   │   └── HomeViewModel.kt
-│   ├── insights/
-│   │   └── InsightsScreen.kt
-│   ├── journal/
-│   │   ├── JournalEditorScreen.kt
-│   │   ├── JournalListScreen.kt
-│   │   └── JournalViewModel.kt
-│   ├── navigation/
-│   │   ├── BloomNavGraph.kt
-│   │   ├── BottomNavigation.kt
-│   │   └── Screen.kt
-│   ├── onboarding/
-│   │   └── OnboardingScreen.kt
-│   ├── settings/
-│   │   └── SettingsScreen.kt
-│   ├── splash/
-│   │   └── SplashScreen.kt
-│   └── theme/
-│       └── (Theme.kt, Color.kt, Type.kt, Shape.kt)
 └── util/
-    ├── AppEventBus.kt          # Cross-ViewModel event bus (SharedFlow)
-    ├── Constants.kt            # Journal prompts, daily quotes (25)
-    ├── DateUtils.kt
-    ├── Extensions.kt
-    └── UserPreferences.kt      # DataStore wrapper
 ```
 
 ---
@@ -121,6 +95,8 @@ com.bloom.app
 
 A demonstration APK is available for reviewers.
 
+The demo APK is intended for UI/UX evaluation. AI reflections require a locally supplied Groq API key.
+
 To protect API credentials, AI Reflections are disabled in the demo build.
 
 To enable AI functionality, clone the repository and add your own:
@@ -128,6 +104,8 @@ To enable AI functionality, clone the repository and add your own:
 `GROQ_API_KEY=YOUR_KEY`
 
 in `local.properties`, then rebuild.
+
+[Download Demo APK](https://drive.google.com/file/d/1R5jQ2oaFhK9JnpokJ612mzZ5IHwucwN9/view?usp=sharing)
 
 ---
 
@@ -182,7 +160,7 @@ Obtain a free key at [console.groq.com](https://console.groq.com).
 ```
 
 **Requirements:**
-- Android Studio Ladybug (2024.2.x) or newer
+- Android Studio (latest stable)
 - JDK 17
 - Android SDK 35
 
@@ -195,7 +173,7 @@ Obtain a free key at [console.groq.com](https://console.groq.com).
 | Decision | Rationale |
 |---|---|
 | **Persistent Home Mood Slider** | Removes an unnecessary screen (Mood Check-in) — the slider is now always accessible on the Home screen |
-| **Groq instead of Gemini** | Gemini SDK model availability issues in this project's API configuration; Groq's OpenAI-compatible REST API is simpler, more reliable, and supports true SSE streaming |
+| **Groq instead of Gemini** | Groq was selected for its OpenAI-compatible REST API, low latency, and straightforward streaming support. |
 | **AppEventBus** | Decouples `JournalViewModel` from `HomeViewModel` — the save snackbar and garden bounce animation trigger only on genuine data mutations, not navigation events |
 | **Manual DI** | 5 screens + 2 repositories = Hilt would add unnecessary annotation processing complexity. AppContainer is transparent and migrateable to Hilt in ~30 minutes if needed |
 | **StateFlow everywhere** | Single source of truth per screen. UI only reads, never writes state directly |
@@ -205,12 +183,6 @@ Obtain a free key at [console.groq.com](https://console.groq.com).
 
 ---
 
-## Roadmap
+## Acknowledgements
 
-- [ ] Scheduled daily reminder notifications
-- [ ] iCloud / Google Drive journal backup
-- [ ] Streak freezes / grace days
-- [ ] Weekly Insights report
-- [ ] Multiple journal themes / fonts
-- [ ] Search across entries
-- [ ] AI provider abstraction layer (swap Groq → any OpenAI-compatible endpoint)
+Bloom was built as a personal project to explore modern Android development, thoughtful UX design, and AI-assisted journaling while maintaining an offline-first architecture.

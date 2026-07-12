@@ -71,7 +71,7 @@ interface JournalEntryDao {
 
     /**
      * Update only the AI reflection field.
-     * Used by GeminiService — avoids overwriting the full entry.
+     * Used by GroqService — avoids overwriting the full entry.
      */
     @Query("UPDATE journal_entries SET ai_reflection = :reflection, updated_at = :updatedAt WHERE id = :id")
     suspend fun updateReflection(id: Long, reflection: String, updatedAt: Long)

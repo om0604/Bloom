@@ -356,7 +356,7 @@ private fun ReflectionSection(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text      = "⚠ Gemini API key not configured. Add it in local.properties to enable AI reflections.",
+                            text      = "AI Reflection unavailable\n\nThis demo build does not include a Groq API key.\n\nTo enable AI reflections when building from source,\nadd your Groq API key to local.properties:\n\nGROQ_API_KEY=your_key_here",
                             style     = MaterialTheme.typography.bodySmall,
                             color     = MaterialTheme.colorScheme.onSurfaceVariant,
                             textAlign = TextAlign.Center,

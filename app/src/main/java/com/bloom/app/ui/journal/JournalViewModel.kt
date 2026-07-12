@@ -45,7 +45,7 @@ class JournalViewModel(application: Application) : AndroidViewModel(application)
 
     private val container   = (application as BloomApplication).container
     private val journalRepo = container.journalRepository
-    private val gemini      = container.geminiService
+    private val groqService = container.groqService
 
     // ── Editor State ──────────────────────────────────────────────────────────
     private val _editorState = MutableStateFlow(JournalEditorUiState())
@@ -159,7 +159,7 @@ class JournalViewModel(application: Application) : AndroidViewModel(application)
     }
 
     /**
-     * Request a Gemini reflection for the current entry content.
+     * Request an AI reflection for the current entry content.
      * The entry must be saved first — we only reflect on committed writing.
      */
     fun requestReflection() {
@@ -187,7 +187,7 @@ class JournalViewModel(application: Application) : AndroidViewModel(application)
             }
 
             // Stream reflection
-            gemini.generateReflection(
+            groqService.generateReflection(
                 entryContent = state.content,
                 mood         = state.selectedMood.displayName,
                 prompt       = state.activePrompt,

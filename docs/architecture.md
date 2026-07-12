@@ -20,7 +20,7 @@ Bloom follows **MVVM + Repository pattern** with lightweight clean architecture 
                            │ observes / calls
 ┌──────────────────────────▼──────────────────────────────┐
 │                    Domain / Data Layer                   │
-│  Repository  →  Room DAO  |  DataStore  |  GeminiService│
+│  Repository  →  Room DAO  |  DataStore  |  GroqService  │
 └──────────────────────────┬──────────────────────────────┘
                            │ created by
 ┌──────────────────────────▼──────────────────────────────┐
@@ -57,7 +57,7 @@ Bloom follows **MVVM + Repository pattern** with lightweight clean architecture 
 - **EntityMappers**: `toEntity()` / `toDomain()` extension functions keep entity/domain separation clean
 
 ### AI Layer (`ai/`)
-- `GeminiService` class (internally Groq-backed — class name preserved)
+- `GroqService` class (internally Groq-backed)
 - Uses OkHttp for HTTP + SSE streaming
 - Returns `Flow<ReflectionState>` — UI observes state transitions
 - No coupling to ViewModels; called only from `JournalViewModel`
@@ -111,7 +111,7 @@ JournalEditorScreen → "Get Reflection" tap
     ↓
 JournalViewModel.requestReflection()
     ↓
-GeminiService.generateReflection(content, mood, prompt)
+GroqService.generateReflection(content, mood, prompt)
     ↓
 OkHttp → POST https://api.groq.com/openai/v1/chat/completions
          (model: llama-3.3-70b-versatile, stream: true)
@@ -226,5 +226,5 @@ BloomApplication
             │       │       └── JournalRepository ← JournalViewModel
             │       └── MoodEntryDao
             │               └── MoodRepository ← HomeViewModel
-            └── GeminiService ← JournalViewModel
+            └── GroqService ← JournalViewModel
 ```

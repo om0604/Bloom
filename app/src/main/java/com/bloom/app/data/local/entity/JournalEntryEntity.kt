@@ -28,7 +28,7 @@ data class JournalEntryEntity(
     @ColumnInfo(name = "prompt")
     val prompt       : String? = null,
 
-    /** Gemini AI reflection — null until user requests it */
+    /** Groq AI reflection — null until user requests it */
     @ColumnInfo(name = "ai_reflection")
     val aiReflection : String? = null,
 

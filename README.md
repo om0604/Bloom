@@ -58,7 +58,7 @@ com.bloom.app
 ├── BloomApplication.kt         # Application class — owns AppContainer
 ├── MainActivity.kt             # Single Activity — hosts NavGraph + BottomNav
 ├── ai/
-│   └── GeminiService.kt        # Groq REST API client (retains class name for stability)
+│   └── GroqService.kt          # Groq REST API client
 ├── data/
 │   ├── local/
 │   │   ├── BloomDatabase.kt    # Room database definition (v1)
@@ -117,6 +117,20 @@ com.bloom.app
 
 ---
 
+## Demo APK
+
+A demonstration APK is available for reviewers.
+
+To protect API credentials, AI Reflections are disabled in the demo build.
+
+To enable AI functionality, clone the repository and add your own:
+
+`GROQ_API_KEY=YOUR_KEY`
+
+in `local.properties`, then rebuild.
+
+---
+
 ## Tech Stack
 
 | Category | Library / Technology |
@@ -129,7 +143,7 @@ com.bloom.app
 | Preferences | DataStore Preferences 1.1.1 |
 | AI | Groq REST API (`llama-3.3-70b-versatile`) |
 | Networking | OkHttp 4.12.0 + Gson 2.10.1 |
-| Async | Kotlin Coroutines + Flow |
+| Async | Kotlin Coroutines + Flow (StateFlow / SharedFlow) |
 | Animations | Compose Animation + Lottie 6.6.0 |
 | DI | Manual (AppContainer) |
 | Min SDK | 26 (Android 8.0) |
@@ -187,7 +201,7 @@ Obtain a free key at [console.groq.com](https://console.groq.com).
 | **StateFlow everywhere** | Single source of truth per screen. UI only reads, never writes state directly |
 | **Room over SQLite** | Type-safe queries, coroutine support, schema migration safety, no manual cursor management |
 | **No network-first** | Journal data is personal and precious — offline-first ensures zero data loss on connectivity changes |
-| **GeminiService class name preserved** | The class was renamed internally (Groq-backed) but retains its name to minimize Git diff noise and architectural churn |
+| **Event-driven save architecture** | UI emits save events, triggering cross-screen animations via `SharedFlow` |
 
 ---
 

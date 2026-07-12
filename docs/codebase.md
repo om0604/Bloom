@@ -28,8 +28,8 @@ Single Activity. Responsibilities:
 
 ## AI — `ai/`
 
-### `GeminiService`
-**Class name preserved** — internally backed by Groq REST API (not Gemini SDK).
+### `GroqService`
+**Backed by Groq REST API**.
 
 | Member | Description |
 |---|---|
@@ -152,7 +152,7 @@ Service locator. All dependencies created `by lazy {}`:
 | `database` (private) | `BloomDatabase` |
 | `journalRepository` | `JournalRepository` |
 | `moodRepository` | `MoodRepository` |
-| `geminiService` | `GeminiService` |
+| `groqService` | `GroqService` |
 
 ---
 

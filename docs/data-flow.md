@@ -34,7 +34,7 @@ graph TD
     end
 
     subgraph AI["AI Layer"]
-        GROQ[GeminiService\nGroq REST]
+        GROQ[GroqService\nGroq REST]
     end
 
     subgraph BUS["Event Bus"]
@@ -122,7 +122,7 @@ sequenceDiagram
     participant U as User
     participant JES as JournalEditorScreen
     participant JVM as JournalViewModel
-    participant SVC as GeminiService (Groq)
+    participant SVC as GroqService (Groq)
     participant API as api.groq.com
     participant ROOM as Room DB
 

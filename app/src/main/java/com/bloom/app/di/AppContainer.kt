@@ -1,7 +1,7 @@
 package com.bloom.app.di
 
 import android.content.Context
-import com.bloom.app.ai.GeminiService
+import com.bloom.app.ai.GroqService
 import com.bloom.app.data.local.BloomDatabase
 import com.bloom.app.data.repository.JournalRepository
 import com.bloom.app.data.repository.MoodRepository
@@ -39,5 +39,5 @@ class AppContainer(context: Context) {
     val moodRepository    by lazy { MoodRepository(database.moodEntryDao()) }
 
     // ── AI Service ────────────────────────────────────────────────────────────
-    val geminiService by lazy { GeminiService() }
+    val groqService by lazy { GroqService() }
 }

@@ -13,7 +13,7 @@ data class JournalEntry(
     val content      : String,          // The journal text — primary field
     val mood         : Mood,            // Mood at time of writing
     val prompt       : String?  = null, // Which prompt the user chose (optional)
-    val aiReflection : String?  = null, // Gemini reflection, if requested
+    val aiReflection : String?  = null, // Groq reflection, if requested
     val wordCount    : Int      = 0,    // Computed from content
     val createdAt    : Long,            // Epoch millis — used for date grouping
     val updatedAt    : Long,            // Epoch millis — tracks edits

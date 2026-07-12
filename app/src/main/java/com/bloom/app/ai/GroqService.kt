@@ -19,10 +19,9 @@ import java.net.UnknownHostException
 import java.util.concurrent.TimeUnit
 
 // ─────────────────────────────────────────────────────────────────────────────
-// GeminiService (Now backed by Groq REST API)
+// GroqService
 //
 // Wraps the Groq API for gentle, reflective journaling insights.
-// (Class intentionally not renamed to minimize architectural changes)
 // ─────────────────────────────────────────────────────────────────────────────
 
 sealed class ReflectionState {
@@ -32,7 +31,7 @@ sealed class ReflectionState {
     data class Error(val message: String) : ReflectionState()
 }
 
-class GeminiService {
+class GroqService {
 
     private val client = OkHttpClient.Builder()
         .connectTimeout(15, TimeUnit.SECONDS)
@@ -104,7 +103,7 @@ class GeminiService {
                                 }
                             }
                         } catch (e: Exception) {
-                            Log.e("GeminiService", "Failed to parse chunk: $data", e)
+                            Log.e("GroqService", "Failed to parse chunk: $data", e)
                         }
                     }
                 }
@@ -114,7 +113,7 @@ class GeminiService {
         }
     }
     .catch { error ->
-        Log.e("GeminiService", "Generation failed. Full exception: ${error.message}", error)
+        Log.e("GroqService", "Generation failed. Full exception: ${error.message}", error)
         val errorMessage = error.message?.lowercase() ?: ""
         
         val userFriendlyMessage = when {

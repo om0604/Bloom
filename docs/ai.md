@@ -17,12 +17,10 @@ Groq was chosen as the replacement because:
 
 ---
 
-## Class: `GeminiService`
+## Class: `GroqService`
 
 **Package:** `com.bloom.app.ai`  
-**File:** `GeminiService.kt`
-
-> The class name `GeminiService` is intentionally preserved to minimize architectural churn and Git diff noise. Internally it is 100% Groq-backed.
+**File:** `GroqService.kt`
 
 ### Model
 ```
@@ -136,7 +134,7 @@ Errors always emit `ReflectionState.Error(message)` — the flow never throws to
 
 ## Future Provider Abstraction
 
-Currently `GeminiService` is a concrete class. To support multiple providers:
+Currently `GroqService` is a concrete class. To support multiple providers:
 
 1. Extract an interface:
 ```kotlin
@@ -149,9 +147,9 @@ interface ReflectionService {
 }
 ```
 
-2. Rename `GeminiService` → `GroqReflectionService : ReflectionService`
+2. Rename `GroqService` → `GroqReflectionService : ReflectionService`
 
-3. Add `OpenAIReflectionService`, `GeminiReflectionService`, etc. as alternatives
+3. Add `OpenAIReflectionService`, `AnthropicReflectionService`, etc. as alternatives
 
 4. `AppContainer` selects the implementation via config or feature flag
 

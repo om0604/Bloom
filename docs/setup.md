@@ -75,7 +75,7 @@ Bloom/
 │   └── src/main/java/com/bloom/app/
 │       ├── BloomApplication.kt
 │       ├── MainActivity.kt
-│       ├── ai/GeminiService.kt   # Groq REST client
+│       ├── ai/GroqService.kt     # Groq REST client
 │       ├── data/                 # Room, DataStore, repositories
 │       ├── di/AppContainer.kt    # Manual dependency injection
 │       ├── ui/                   # All Compose screens & components
@@ -97,7 +97,7 @@ Bloom/
 | `ui/navigation/BloomNavGraph.kt` | Full navigation graph with transitions |
 | `data/model/Mood.kt` | Core domain concept used everywhere |
 | `util/AppEventBus.kt` | Cross-ViewModel event system |
-| `ai/GeminiService.kt` | AI integration and streaming protocol |
+| `ai/GroqService.kt` | AI integration and streaming protocol |
 
 ---
 
@@ -105,7 +105,7 @@ Bloom/
 
 ### AI Reflection not working
 1. Check `local.properties` has `GROQ_API_KEY=...`
-2. Check Logcat for tag `GeminiService`
+2. Check Logcat for tag `GroqService`
 3. Verify the key at [console.groq.com](https://console.groq.com)
 
 ### Database issues

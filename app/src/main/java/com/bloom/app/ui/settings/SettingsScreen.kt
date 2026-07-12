@@ -343,7 +343,7 @@ private fun ThemeOption(
 @Composable
 private fun AISection() {
     SettingsSection(title = "AI Assistant") {
-        val hasKey = BuildConfig.GEMINI_API_KEY.isNotEmpty()
+        val hasKey = BuildConfig.GROQ_API_KEY.isNotEmpty()
         val statusText = if (hasKey) "✓ Connected" else "⚠ API Key Missing"
         val statusColor = if (hasKey) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
 

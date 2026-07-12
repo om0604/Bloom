@@ -263,7 +263,7 @@ private fun ReflectionSection(
         Spacer(modifier = Modifier.height(24.dp))
 
         val haptic = LocalHapticFeedback.current
-        val hasApiKey = BuildConfig.GEMINI_API_KEY.isNotEmpty()
+        val hasApiKey = BuildConfig.GROQ_API_KEY.isNotEmpty()
 
         LaunchedEffect(aiReflection, reflectionState) {
             if (aiReflection != null && reflectionState !is ReflectionState.Loading && reflectionState !is ReflectionState.Streaming) {

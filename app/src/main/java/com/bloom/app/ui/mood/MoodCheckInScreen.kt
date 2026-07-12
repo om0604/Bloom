@@ -18,6 +18,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.draw.shadow
+import kotlin.math.roundToInt
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.text.input.ImeAction
@@ -115,8 +123,8 @@ fun MoodCheckInScreen(
 
             Spacer(modifier = Modifier.height(48.dp))
 
-            // ── Mood Cards ────────────────────────────────────────────────────
-            MoodCardRow(
+            // ── Mood Slider ────────────────────────────────────────────────────
+            MoodSlider(
                 selectedMood = state.selectedMood,
                 onMoodSelect = { mood ->
                     haptic.performHapticFeedback(HapticFeedbackType.LongPress)
@@ -227,113 +235,167 @@ fun MoodCheckInScreen(
     }
 }
 
-// ── Mood Card Row ─────────────────────────────────────────────────────────────
+// ── Mood Slider ─────────────────────────────────────────────────────────────
 
 @Composable
-private fun MoodCardRow(
-    selectedMood : Mood?,
-    onMoodSelect : (Mood) -> Unit,
+private fun MoodSlider(
+    selectedMood: Mood?,
+    onMoodSelect: (Mood) -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    Row(
-        modifier              = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
-    ) {
-        Mood.entries.forEach { mood ->
-            MoodCard(
-                mood         = mood,
-                isSelected   = mood == selectedMood,
-                anySelected  = selectedMood != null,
-                onSelect     = { onMoodSelect(mood) },
-                modifier     = Modifier.weight(1f),
-            )
+    val haptic = LocalHapticFeedback.current
+    val moods = Mood.entries
+    val density = LocalDensity.current
+
+    var trackWidth by remember { mutableFloatStateOf(0f) }
+    var dragOffset by remember { mutableFloatStateOf(-1f) }
+    var isDragging by remember { mutableStateOf(false) }
+
+    val segmentWidth = if (trackWidth > 0) trackWidth / (moods.size - 1) else 0f
+    
+    val targetOffset = when {
+        isDragging && dragOffset >= 0 -> dragOffset.coerceIn(0f, trackWidth)
+        selectedMood != null -> (selectedMood.ordinal * segmentWidth)
+        else -> trackWidth / 2f
+    }
+
+    val animatedOffset by animateFloatAsState(
+        targetValue = targetOffset,
+        animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+        label = "slider_thumb_offset"
+    )
+
+    val activeIndex = if (segmentWidth > 0) {
+        (animatedOffset / segmentWidth).roundToInt().coerceIn(0, moods.lastIndex)
+    } else selectedMood?.ordinal ?: 2
+
+    var lastHapticIndex by remember { mutableIntStateOf(activeIndex) }
+    LaunchedEffect(activeIndex, isDragging) {
+        if (isDragging && activeIndex != lastHapticIndex) {
+            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+            lastHapticIndex = activeIndex
         }
     }
-}
 
-// ── Individual Mood Card ──────────────────────────────────────────────────────
-
-@Composable
-private fun MoodCard(
-    mood        : Mood,
-    isSelected  : Boolean,
-    anySelected : Boolean,
-    onSelect    : () -> Unit,
-    modifier    : Modifier = Modifier,
-) {
-    val interactionSource = remember { MutableInteractionSource() }
-    val isPressed by interactionSource.collectIsPressedAsState()
-
-    // Scale: selected → bigger, unselected (when another is selected) → slightly smaller
-    val scale by animateFloatAsState(
-        targetValue = when {
-            isSelected          -> if (isPressed) 0.95f else 1.08f
-            anySelected         -> 0.92f
-            isPressed           -> 0.96f
-            else                -> 1f
-        },
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness    = Spring.StiffnessMedium,
-        ),
-        label = "mood_scale_${mood.name}",
-    )
-
-    val moodColor = mood.toColor()
-
-    val backgroundColor by animateColorAsState(
-        targetValue   = if (isSelected) moodColor.copy(alpha = 0.15f)
-                        else MaterialTheme.colorScheme.surface,
-        animationSpec = tween(250),
-        label         = "mood_bg_${mood.name}",
-    )
-
-    val borderColor by animateColorAsState(
-        targetValue   = if (isSelected) moodColor else MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
-        animationSpec = tween(250),
-        label         = "mood_border_${mood.name}",
-    )
-
-    val contentAlpha by animateFloatAsState(
-        targetValue   = if (anySelected && !isSelected) 0.5f else 1f,
-        animationSpec = tween(200),
-        label         = "mood_alpha_${mood.name}",
+    val activeColor by animateColorAsState(
+        targetValue = if (selectedMood != null || isDragging) moods[activeIndex].toColor() else MaterialTheme.colorScheme.surfaceVariant,
+        animationSpec = tween(300),
+        label = "slider_color"
     )
 
     Column(
-        modifier = modifier
-            .scale(scale)
-            .clip(MaterialTheme.shapes.medium)
-            .background(backgroundColor)
-            .border(
-                width = 1.5.dp,
-                color = borderColor,
-                shape = MaterialTheme.shapes.medium,
-            )
-            .clickable(
-                interactionSource = interactionSource,
-                indication        = null,
-                onClick           = onSelect,
-            )
-            .padding(vertical = 16.dp, horizontal = 4.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Emoji — enlarges on selection
-        val emojiSize by animateFloatAsState(
-            targetValue   = if (isSelected) 28f else 22f,
-            animationSpec = spring(stiffness = Spring.StiffnessMedium),
-            label         = "emoji_size_${mood.name}",
-        )
-        Text(
-            text  = mood.emoji,
-            style = MaterialTheme.typography.bodyLarge.copy(fontSize = emojiSize.sp),
-        )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(64.dp)
+                .onSizeChanged { trackWidth = it.width.toFloat() }
+                .pointerInput(trackWidth) {
+                    detectHorizontalDragGestures(
+                        onDragStart = { offset ->
+                            isDragging = true
+                            dragOffset = offset.x.coerceIn(0f, trackWidth)
+                        },
+                        onDragEnd = {
+                            isDragging = false
+                            val finalIndex = (dragOffset / segmentWidth).roundToInt().coerceIn(0, moods.lastIndex)
+                            onMoodSelect(moods[finalIndex])
+                        },
+                        onDragCancel = {
+                            isDragging = false
+                        },
+                        onHorizontalDrag = { change, dragAmount ->
+                            change.consume()
+                            dragOffset = (dragOffset + dragAmount).coerceIn(0f, trackWidth)
+                        }
+                    )
+                }
+                .pointerInput(trackWidth) {
+                    detectTapGestures(
+                        onTap = { offset ->
+                            val tappedIndex = (offset.x / segmentWidth).roundToInt().coerceIn(0, moods.lastIndex)
+                            onMoodSelect(moods[tappedIndex])
+                        }
+                    )
+                },
+            contentAlignment = Alignment.CenterStart
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(8.dp)
+                    .clip(MaterialTheme.shapes.small)
+                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .width(with(density) { animatedOffset.toDp() })
+                        .clip(MaterialTheme.shapes.small)
+                        .background(activeColor)
+                )
+            }
 
-        Text(
-            text  = mood.displayName,
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = contentAlpha),
-        )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                moods.forEach { 
+                    Box(
+                        modifier = Modifier
+                            .size(8.dp)
+                            .clip(MaterialTheme.shapes.small)
+                            .background(if (it.ordinal <= activeIndex && (selectedMood != null || isDragging)) Color.Transparent else MaterialTheme.colorScheme.surfaceVariant)
+                    )
+                }
+            }
+
+            val thumbScale by animateFloatAsState(
+                targetValue = if (isDragging) 1.2f else if (selectedMood != null) 1.1f else 1.0f,
+                animationSpec = spring(stiffness = Spring.StiffnessMedium),
+                label = "thumb_scale"
+            )
+            
+            Box(
+                modifier = Modifier
+                    .offset { IntOffset((animatedOffset - 24.dp.toPx()).roundToInt(), 0) }
+                    .size(48.dp)
+                    .scale(thumbScale)
+                    .shadow(4.dp, MaterialTheme.shapes.extraLarge)
+                    .clip(MaterialTheme.shapes.extraLarge)
+                    .background(MaterialTheme.colorScheme.surface)
+                    .border(2.dp, activeColor, MaterialTheme.shapes.extraLarge),
+                contentAlignment = Alignment.Center
+            ) {
+                val emojiSize by animateFloatAsState(if (selectedMood != null || isDragging) 24f else 20f, label="emoji")
+                Text(
+                    text = moods[activeIndex].emoji,
+                    fontSize = emojiSize.sp
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            moods.forEachIndexed { index, mood ->
+                val isSelected = index == activeIndex && (selectedMood != null || isDragging)
+                val labelAlpha by animateFloatAsState(if (isSelected) 1f else 0.5f, label="alpha")
+                
+                Text(
+                    text = mood.displayName,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = labelAlpha),
+                    modifier = Modifier.weight(1f),
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
     }
 }
 

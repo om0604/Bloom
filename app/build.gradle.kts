@@ -24,10 +24,10 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
 
-        // Gemini API key — stored in local.properties, never committed to VCS
-        val geminiApiKey: String = gradleLocalProperties(rootDir, providers)
-            .getProperty("GEMINI_API_KEY")?.trim() ?: ""
-        buildConfigField("String", "GEMINI_API_KEY", "\"$geminiApiKey\"")
+        // Groq API key — stored in local.properties, never committed to VCS
+        val groqApiKey: String = gradleLocalProperties(rootDir, providers)
+            .getProperty("GROQ_API_KEY")?.trim() ?: ""
+        buildConfigField("String", "GROQ_API_KEY", "\"$groqApiKey\"")
     }
 
     buildTypes {
@@ -122,8 +122,9 @@ dependencies {
     // ---- Coroutines ----
     implementation(libs.kotlinx.coroutines.android)
 
-    // ---- Gemini AI ----
-    implementation(libs.generativeai)
+    // ---- Networking ----
+    implementation(libs.okhttp)
+    implementation(libs.gson)
 
     // ---- Lottie ----
     implementation(libs.lottie.compose)

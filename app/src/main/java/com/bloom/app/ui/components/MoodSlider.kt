@@ -89,6 +89,7 @@ fun MoodSlider(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
+                .padding(horizontal = 24.dp)
                 .height(64.dp)
                 .onSizeChanged { trackWidth = it.width.toFloat() }
                 .pointerInput(trackWidth) {
@@ -179,7 +180,9 @@ fun MoodSlider(
         Spacer(modifier = Modifier.height(16.dp))
 
         Box(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp)
         ) {
             moods.forEachIndexed { index, mood ->
                 val isSelected = index == activeIndex && (selectedMood != null || isDragging)

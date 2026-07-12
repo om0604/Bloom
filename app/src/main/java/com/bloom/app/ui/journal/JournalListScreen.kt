@@ -56,6 +56,8 @@ fun JournalListScreen(
     var visible by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) { visible = true }
 
+    var entryToDelete by remember { mutableStateOf<JournalEntry?>(null) }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -113,6 +115,7 @@ fun JournalListScreen(
                             JournalEntryCard(
                                 entry  = entry,
                                 onTap  = { onEntryTap(entry.id) },
+                                onLongPress = { entryToDelete = entry }
                             )
                         }
                     }
@@ -152,6 +155,33 @@ fun JournalListScreen(
             }
         }
     }
+
+    if (entryToDelete != null) {
+        AlertDialog(
+            onDismissRequest = { entryToDelete = null },
+            title = { 
+                Text("Delete Entry") 
+            },
+            text = { 
+                Text("Are you sure you want to delete the selected entry(s)?") 
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = { 
+                        viewModel.deleteEntry(entryToDelete!!)
+                        entryToDelete = null
+                    }
+                ) {
+                    Text("Yes")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { entryToDelete = null }) {
+                    Text("No")
+                }
+            }
+        )
+    }
 }
 
 @Composable
@@ -177,6 +207,7 @@ fun JournalShimmerLoading() {
 private fun JournalEntryCard(
     entry : JournalEntry,
     onTap : () -> Unit,
+    onLongPress : () -> Unit,
 ) {
     val moodColor = when (entry.mood) {
         Mood.GREAT -> MoodGreat
@@ -188,6 +219,7 @@ private fun JournalEntryCard(
 
     BloomCard(
         onClick  = onTap,
+        onLongClick = onLongPress,
         modifier = Modifier.fillMaxWidth(),
     ) {
         Row(

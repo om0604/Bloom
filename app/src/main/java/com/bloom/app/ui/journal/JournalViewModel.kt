@@ -152,6 +152,12 @@ class JournalViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
+    fun deleteEntry(entry: JournalEntry) {
+        viewModelScope.launch {
+            journalRepo.deleteEntry(entry)
+        }
+    }
+
     /**
      * Request a Gemini reflection for the current entry content.
      * The entry must be saved first — we only reflect on committed writing.

@@ -11,6 +11,8 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.ui.composed
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -46,10 +48,12 @@ import com.bloom.app.ui.theme.*
  * Rounded, soft shadow, warm surface color.
  * Used wherever content needs visual grouping.
  */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun BloomCard(
     modifier        : Modifier = Modifier,
     onClick         : (() -> Unit)? = null,
+    onLongClick     : (() -> Unit)? = null,
     content         : @Composable ColumnScope.() -> Unit,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -71,10 +75,11 @@ fun BloomCard(
             )
             .clip(MaterialTheme.shapes.large)
             .then(
-                if (onClick != null) Modifier.clickable(
+                if (onClick != null || onLongClick != null) Modifier.combinedClickable(
                     interactionSource = interactionSource,
                     indication        = null,
-                    onClick           = onClick,
+                    onClick           = onClick ?: {},
+                    onLongClick       = onLongClick,
                 ) else Modifier
             ),
         color  = MaterialTheme.colorScheme.surface,

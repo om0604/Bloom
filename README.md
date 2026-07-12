@@ -5,7 +5,7 @@
 ![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-Material%203-brightgreen)
 ![Room](https://img.shields.io/badge/Room-Offline--First-orange)
 ![Groq](https://img.shields.io/badge/AI-Groq-red)
-![License](https://img.shields.io/badge/License-MIT-lightgrey)
+
 
 A **premium Android journaling application** focused on mindful reflection and emotional wellbeing.
 

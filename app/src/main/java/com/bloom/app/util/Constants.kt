@@ -48,5 +48,15 @@ object Constants {
         Pair("What you seek is seeking you.", "Rumi"),
         Pair("Rest is not idleness.", "John Lubbock"),
         Pair("Small steps still move you forward.", "Unknown"),
+        Pair("Peace comes from within. Do not seek it without.", "Buddha"),
+        Pair("Your calm mind is the ultimate weapon against your challenges.", "Bryant McGill"),
+        Pair("Tension is who you think you should be. Relaxation is who you are.", "Chinese Proverb"),
+        Pair("Happiness is not something ready made. It comes from your own actions.", "Dalai Lama"),
+        Pair("Every moment is a fresh beginning.", "T.S. Eliot"),
+        Pair("Turn your face to the sun and shadows fall behind you.", "Maori Proverb"),
+        Pair("The best way out is always through.", "Robert Frost"),
+        Pair("Doubt whom you will, but never yourself.", "Christian Nestell Bovee"),
+        Pair("Fall seven times, stand up eight.", "Japanese Proverb"),
+        Pair("Act as if what you do makes a difference. It does.", "William James")
     )
 }

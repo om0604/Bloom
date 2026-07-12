@@ -178,9 +178,8 @@ fun MoodSlider(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+        Box(
+            modifier = Modifier.fillMaxWidth()
         ) {
             moods.forEachIndexed { index, mood ->
                 val isSelected = index == activeIndex && (selectedMood != null || isDragging)
@@ -190,7 +189,9 @@ fun MoodSlider(
                     text = mood.displayName,
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = labelAlpha),
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier
+                        .offset { IntOffset((index * segmentWidth - 24.dp.toPx()).roundToInt(), 0) }
+                        .width(48.dp),
                     textAlign = TextAlign.Center
                 )
             }

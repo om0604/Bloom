@@ -13,6 +13,7 @@ import com.bloom.app.util.DateUtils
 import com.bloom.app.util.ThemePreference
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
 import java.time.LocalDate
 
 data class HomeUiState(
@@ -62,6 +63,15 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    private val currentQuoteFlow: Flow<Pair<String, String>> = flow {
+        while(true) {
+            val currentHour = System.currentTimeMillis() / (1000 * 60 * 60)
+            val quoteIndex = (currentHour / 2).toInt() % Constants.DAILY_QUOTES.size
+            emit(Constants.DAILY_QUOTES[quoteIndex])
+            delay(60_000L) // Check every minute
+        }
+    }
+
     private fun observeHomeData() {
         viewModelScope.launch {
             // Combine all reactive sources into a single UI state
@@ -70,12 +80,11 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                 moodRepo.todaysMood,
                 journalRepo.latestEntry,
                 journalRepo.entryCount,
-            ) { name, todaysMood, latestEntry, entryCount ->
+                currentQuoteFlow,
+            ) { name, todaysMood, latestEntry, entryCount, quote ->
 
                 val streak      = journalRepo.computeStreak()
                 val gardenStage = GardenStage.fromEntryCount(entryCount)
-                val dayOfYear   = LocalDate.now().dayOfYear
-                val quote       = Constants.DAILY_QUOTES[dayOfYear % Constants.DAILY_QUOTES.size]
 
                 // Determine if the latest entry was created today
                 val hasEntryToday = latestEntry?.let {

@@ -45,9 +45,6 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             initialValue = ThemePreference.SYSTEM
         )
 
-    init {
-        observeHomeData()
-    }
 
     fun toggleTheme() {
         viewModelScope.launch {
@@ -70,6 +67,10 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             emit(Constants.DAILY_QUOTES[quoteIndex])
             delay(60_000L) // Check every minute
         }
+    }
+
+    init {
+        observeHomeData()
     }
 
     private fun observeHomeData() {

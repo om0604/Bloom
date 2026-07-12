@@ -71,7 +71,7 @@ class JournalRepository(private val dao: JournalEntryDao) {
     }
 
     /**
-     * Attach a Gemini reflection to an existing entry.
+     * Attach an AI reflection to an existing entry.
      * Uses a targeted UPDATE — never touches content or mood.
      */
     suspend fun saveReflection(entryId: Long, reflection: String) {

@@ -113,7 +113,7 @@ To enable AI functionality, clone the repository and add your own:
 
 in `local.properties`, then rebuild.
 
-[Download Demo APK](https://drive.google.com/file/d/1R5jQ2oaFhK9JnpokJ612mzZ5IHwucwN9/view?usp=sharing)
+[Download Demo APK](https://drive.google.com/file/d/1CRk_A0a58sIMszBEAliMVxAJCFtURs1K/view?usp=sharing)
 
 ---
 

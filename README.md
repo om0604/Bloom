@@ -27,13 +27,17 @@ Bloom is offline-first, powered by a local Room database, and enriched with Groq
 
 ## Screenshots
 
-| Splash | Onboarding 1 | Onboarding 2 | Onboarding 3 | Home |
-|--------|--------------|--------------|--------------|------|
-| ![](screenshots/splash.png) | ![](screenshots/onboarding1.png) | ![](screenshots/onboarding2.png) | ![](screenshots/onboarding3.png) | ![](screenshots/home.png) |
-
-| Journal | AI Reflection | Garden | Insights | Settings |
-|---------|---------------|--------|----------|----------|
-| ![](screenshots/journal.png) | ![](screenshots/ai-reflection.png) | ![](screenshots/garden.png) | ![](screenshots/insights.png) | ![](screenshots/settings.png) |
+| Splash | Onboarding 1 |
+|--------|--------------|
+| ![](screenshots/splash.png) | ![](screenshots/onboarding1.png) |
+| **Onboarding 2** | **Onboarding 3** |
+| ![](screenshots/onboarding2.png) | ![](screenshots/onboarding3.png) |
+| **Home** | **Journal** |
+| ![](screenshots/home.png) | ![](screenshots/journal.png) |
+| **AI Reflection** | **Garden** |
+| ![](screenshots/ai-reflection.png) | ![](screenshots/garden.png) |
+| **Insights** | **Settings** |
+| ![](screenshots/insights.png) | ![](screenshots/settings.png) |
 
 ---
 
